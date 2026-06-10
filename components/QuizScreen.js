@@ -3,30 +3,28 @@
 import { useState } from 'react'
 import { pickRandom } from '@/lib/questions'
 
-// round 0: P1 asks P2; round 1: P2 asks P1
-// asker idx:   round 0 → 0, round 1 → 1
-// answerer idx: round 0 → 1, round 1 → 0
-// correct: answerer += q.p, asker += 1; wrong: nobody scores
+// Per question: subStep 0 = P1 asks P2, subStep 1 = P2 asks P1 (same question)
+// correct: answerer += q.p, asker += 1 | wrong: nobody scores
 
-export default function QuizScreen({ t, lang, onDone }) {
-  const [questions] = useState(() => pickRandom(20))
-  const [round, setRound] = useState(0)             // 0 or 1
+export default function QuizScreen({ t, lang, count, onDone }) {
+  const [questions] = useState(() => pickRandom(count))
   const [index, setIndex] = useState(0)
-  const [scores, setScores] = useState([0, 0])      // [p1, p2]
-  const [history, setHistory] = useState([])        // [{scoreDelta: [d0,d1]}]
+  const [subStep, setSubStep] = useState(0)   // 0 or 1
+  const [scores, setScores] = useState([0, 0])
+  const [history, setHistory] = useState([])  // [{delta, index, subStep}]
   const [answered, setAnswered] = useState(false)
   const [lastCorrect, setLastCorrect] = useState(null)
   const [animKey, setAnimKey] = useState(0)
-  const [showTransition, setShowTransition] = useState(false)
 
   const q = questions[index]
-  const askerIdx = round        // round 0 → P1 asks, round 1 → P2 asks
-  const answererIdx = 1 - round
-  const askerName = askerIdx === 0 ? t.player1 : t.player2
+  const askerIdx    = subStep          // subStep 0 → P1, subStep 1 → P2
+  const answererIdx = 1 - subStep
+  const askerName    = askerIdx === 0 ? t.player1 : t.player2
   const answererName = answererIdx === 0 ? t.player1 : t.player2
+
   const totalSteps = questions.length * 2
-  const doneSteps = round * questions.length + index
-  const progress = (doneSteps / totalSteps) * 100
+  const doneSteps  = index * 2 + subStep
+  const progress   = (doneSteps / totalSteps) * 100
 
   function ptsLabel(n) {
     if (lang === 'ru') return `+${n} ${n === 1 ? 'балл' : n < 5 ? 'балла' : 'баллов'}`
@@ -39,92 +37,53 @@ export default function QuizScreen({ t, lang, onDone }) {
       delta[answererIdx] = q.p
       delta[askerIdx] = 1
     }
-    const newScores = [scores[0] + delta[0], scores[1] + delta[1]]
-    setScores(newScores)
-    setHistory(h => [...h, { delta, round, index }])
+    setScores(s => [s[0] + delta[0], s[1] + delta[1]])
+    setHistory(h => [...h, { delta, index, subStep }])
     setLastCorrect(correct)
     setAnswered(true)
   }
 
   function goNext() {
-    const isLastInRound = index + 1 >= questions.length
-    if (isLastInRound && round === 0) {
-      setShowTransition(true)
+    if (subStep === 0) {
+      setSubStep(1)
       setAnswered(false)
       setLastCorrect(null)
-      return
+      setAnimKey(k => k + 1)
+    } else {
+      if (index + 1 >= questions.length) {
+        onDone({ scores: [scores[0], scores[1]], questions })
+        return
+      }
+      setIndex(i => i + 1)
+      setSubStep(0)
+      setAnswered(false)
+      setLastCorrect(null)
+      setAnimKey(k => k + 1)
     }
-    if (isLastInRound && round === 1) {
-      onDone({ scores, questions })
-      return
-    }
-    setIndex(i => i + 1)
-    setAnswered(false)
-    setLastCorrect(null)
-    setAnimKey(k => k + 1)
-  }
-
-  function startRound2() {
-    setRound(1)
-    setIndex(0)
-    setShowTransition(false)
-    setAnimKey(k => k + 1)
   }
 
   function goBack() {
     if (history.length === 0) return
     const last = history[history.length - 1]
     setHistory(h => h.slice(0, -1))
-    setScores([scores[0] - last.delta[0], scores[1] - last.delta[1]])
-    // if going back across round boundary
-    if (last.round !== round) {
-      setRound(last.round)
-      setShowTransition(false)
-    }
+    setScores(s => [s[0] - last.delta[0], s[1] - last.delta[1]])
     setIndex(last.index)
+    setSubStep(last.subStep)
     setAnswered(false)
     setLastCorrect(null)
     setAnimKey(k => k + 1)
   }
 
-  if (showTransition) {
-    const nextAsker = t.player2
-    const nextAnswerer = t.player1
-    return (
-      <div className="float-in space-y-5 text-center">
-        <div className="bg-white rounded-2xl shadow-sm border border-rose-100 p-8 space-y-3">
-          <div className="text-4xl">🔄</div>
-          <h2 className="text-xl font-bold text-gray-800">{t.roundTransitionTitle(nextAsker)}</h2>
-          <p className="text-gray-500 text-sm">{t.roundTransitionDesc(nextAsker, nextAnswerer)}</p>
-          <div className="flex justify-center gap-6 pt-2">
-            <ScorePill label={t.player1} score={scores[0]} active={false} />
-            <ScorePill label={t.player2} score={scores[1]} active={false} />
-          </div>
-        </div>
-        <button
-          onClick={startRound2}
-          className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold shadow-md hover:from-rose-600 hover:to-pink-600 active:scale-95 transition-all"
-        >
-          {t.roundTransitionBtn}
-        </button>
-        {history.length > 0 && (
-          <button onClick={goBack} className="w-full py-2.5 rounded-2xl bg-gray-100 text-gray-600 font-medium hover:bg-gray-200 active:scale-95 transition-all text-sm">
-            {t.backBtn}
-          </button>
-        )}
-      </div>
-    )
-  }
+  const isLastStep = index + 1 >= questions.length && subStep === 1
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <ScorePill label={t.player1} score={scores[0]} active={answererIdx === 0 && !answered} />
           <ScorePill label={t.player2} score={scores[1]} active={answererIdx === 1 && !answered} />
         </div>
         <div className="text-right">
-          <div className="text-xs text-rose-400 font-medium">{t.round(round + 1)}</div>
           <div className="text-xs text-gray-400">{t.questionOf(index + 1, questions.length)}</div>
         </div>
       </div>
@@ -136,14 +95,22 @@ export default function QuizScreen({ t, lang, onDone }) {
         />
       </div>
 
+      {/* subStep indicator */}
+      <div className="flex rounded-xl overflow-hidden border border-rose-100">
+        <div className={`flex-1 py-1.5 text-center text-xs font-medium transition-colors ${subStep === 0 ? 'bg-rose-500 text-white' : 'bg-rose-50 text-rose-300'}`}>
+          {t.player1} → {t.player2}
+        </div>
+        <div className={`flex-1 py-1.5 text-center text-xs font-medium transition-colors ${subStep === 1 ? 'bg-rose-500 text-white' : 'bg-rose-50 text-rose-300'}`}>
+          {t.player2} → {t.player1}
+        </div>
+      </div>
+
       <div
         key={animKey}
-        className="float-in bg-white rounded-2xl shadow-sm border border-rose-100 p-6 min-h-[190px] flex flex-col items-center justify-center gap-4"
+        className="float-in bg-white rounded-2xl shadow-sm border border-rose-100 p-6 min-h-[170px] flex flex-col items-center justify-center gap-4"
       >
-        <div className="flex gap-3 text-xs font-medium text-rose-400 uppercase tracking-wide">
-          <span>{t.askerLabel(askerName)}</span>
-          <span className="text-rose-200">·</span>
-          <span>{t.answererLabel(answererName)}</span>
+        <div className="text-xs font-medium text-rose-400 uppercase tracking-wide">
+          {t.askerLabel(askerName)} · {t.answererLabel(answererName)}
         </div>
 
         <p className="text-gray-800 font-medium text-lg text-center leading-snug">
@@ -151,9 +118,7 @@ export default function QuizScreen({ t, lang, onDone }) {
         </p>
 
         <div className="flex items-center gap-1 text-xs text-rose-300">
-          {Array.from({ length: Math.min(q.p, 5) }).map((_, i) => (
-            <span key={i}>♥</span>
-          ))}
+          {Array.from({ length: Math.min(q.p, 5) }).map((_, i) => <span key={i}>♥</span>)}
           <span className="ml-1 text-rose-400">{ptsLabel(q.p)}</span>
         </div>
       </div>
@@ -184,9 +149,11 @@ export default function QuizScreen({ t, lang, onDone }) {
             onClick={goNext}
             className="w-full py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold hover:from-rose-600 hover:to-pink-600 active:scale-95 transition-all shadow"
           >
-            {index + 1 >= questions.length && round === 1
+            {isLastStep
               ? (lang === 'ru' ? 'Посмотреть результаты' : 'See Results')
-              : (lang === 'ru' ? 'Следующий →' : 'Next →')}
+              : subStep === 0
+                ? (lang === 'ru' ? 'Теперь меняемся →' : 'Switch roles →')
+                : (lang === 'ru' ? 'Следующий вопрос →' : 'Next question →')}
           </button>
         </div>
       )}

@@ -1,9 +1,10 @@
 'use client'
 
-import { Heart, Users, Zap, Shield } from 'lucide-react'
+import { useState } from 'react'
 
 export default function LandingScreen({ t, onStart }) {
-  const icons = [Heart, Shield, Users, Zap]
+  const defaultCount = t.countOptions.find(o => o.default)?.value ?? 20
+  const [count, setCount] = useState(defaultCount)
 
   return (
     <div className="float-in space-y-6">
@@ -36,8 +37,28 @@ export default function LandingScreen({ t, onStart }) {
         <p className="text-gray-600 text-sm leading-relaxed">{t.howToPlayText}</p>
       </div>
 
+      <div className="bg-white rounded-2xl shadow-sm border border-rose-100 p-5 space-y-3">
+        <h2 className="font-semibold text-gray-800 text-base">{t.countLabel}</h2>
+        <div className="grid grid-cols-4 gap-2">
+          {t.countOptions.map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => setCount(opt.value)}
+              className={`flex flex-col items-center py-3 rounded-xl border-2 transition-all ${
+                count === opt.value
+                  ? 'border-rose-400 bg-rose-50 text-rose-700'
+                  : 'border-gray-100 bg-gray-50 text-gray-600 hover:border-rose-200'
+              }`}
+            >
+              <span className="text-xl font-bold">{opt.label}</span>
+              <span className="text-[10px] mt-0.5 text-center leading-tight opacity-70">{opt.sublabel}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <button
-        onClick={onStart}
+        onClick={() => onStart(count)}
         className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold text-base shadow-md hover:shadow-lg hover:from-rose-600 hover:to-pink-600 active:scale-95 transition-all duration-200"
       >
         {t.startBtn} →
