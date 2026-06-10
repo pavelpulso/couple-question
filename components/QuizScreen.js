@@ -6,7 +6,7 @@ import { pickRandom } from '@/lib/questions'
 // Per question: subStep 0 = P1 asks P2, subStep 1 = P2 asks P1 (same question)
 // correct: answerer += q.p, asker += 1 | wrong: nobody scores
 
-export default function QuizScreen({ t, lang, count, onDone }) {
+export default function QuizScreen({ t, lang, count, names, onDone }) {
   const [questions] = useState(() => pickRandom(count))
   const [index, setIndex] = useState(0)
   const [subStep, setSubStep] = useState(0)   // 0 or 1
@@ -19,8 +19,8 @@ export default function QuizScreen({ t, lang, count, onDone }) {
   const q = questions[index]
   const askerIdx    = subStep          // subStep 0 → P1, subStep 1 → P2
   const answererIdx = 1 - subStep
-  const askerName    = askerIdx === 0 ? t.player1 : t.player2
-  const answererName = answererIdx === 0 ? t.player1 : t.player2
+  const askerName    = names[askerIdx]
+  const answererName = names[answererIdx]
 
   const totalSteps = questions.length * 2
   const doneSteps  = index * 2 + subStep
@@ -80,8 +80,8 @@ export default function QuizScreen({ t, lang, count, onDone }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
-          <ScorePill label={t.player1} score={scores[0]} active={answererIdx === 0 && !answered} />
-          <ScorePill label={t.player2} score={scores[1]} active={answererIdx === 1 && !answered} />
+          <ScorePill label={names[0]} score={scores[0]} active={answererIdx === 0 && !answered} />
+          <ScorePill label={names[1]} score={scores[1]} active={answererIdx === 1 && !answered} />
         </div>
         <div className="text-right">
           <div className="text-xs text-gray-400">{t.questionOf(index + 1, questions.length)}</div>
@@ -98,10 +98,10 @@ export default function QuizScreen({ t, lang, count, onDone }) {
       {/* subStep indicator */}
       <div className="flex rounded-xl overflow-hidden border border-rose-100">
         <div className={`flex-1 py-1.5 text-center text-xs font-medium transition-colors ${subStep === 0 ? 'bg-rose-500 text-white' : 'bg-rose-50 text-rose-300'}`}>
-          {t.player1} → {t.player2}
+          {names[0]} → {names[1]}
         </div>
         <div className={`flex-1 py-1.5 text-center text-xs font-medium transition-colors ${subStep === 1 ? 'bg-rose-500 text-white' : 'bg-rose-50 text-rose-300'}`}>
-          {t.player2} → {t.player1}
+          {names[1]} → {names[0]}
         </div>
       </div>
 

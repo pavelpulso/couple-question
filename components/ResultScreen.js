@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 
-export default function ResultScreen({ t, result, onRestart }) {
+export default function ResultScreen({ t, result, names, onRestart }) {
   const { scores } = result
   const [s1, s2] = scores
   const winner = s1 > s2 ? 0 : s2 > s1 ? 1 : -1
@@ -27,16 +27,16 @@ export default function ResultScreen({ t, result, onRestart }) {
   return (
     <div className="float-in space-y-5">
       <div className="text-center">
-        <div className="text-4xl mb-2">{winner === -1 ? '🏆🏆' : winner === 0 ? '🏆' : '🌟'}</div>
+        <div className="text-4xl mb-2">{winner === -1 ? '🏆🏆' : '🏆'}</div>
         <h2 className="text-2xl font-bold text-gray-800">{t.resultTitle}</h2>
         <p className="text-rose-500 font-medium mt-1">
-          {winner === 0 ? t.resultWin1 : winner === 1 ? t.resultWin2 : t.resultDraw}
+          {winner === -1 ? t.resultDraw : t.resultWin(names[winner])}
         </p>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-rose-100 p-5 space-y-4">
-        <ScoreRow label={t.player1} score={s1} pct={pct1} color="from-rose-400 to-pink-500" />
-        <ScoreRow label={t.player2} score={s2} pct={pct2} color="from-violet-400 to-purple-500" />
+        <ScoreRow label={names[0]} score={s1} pct={pct1} color="from-rose-400 to-pink-500" />
+        <ScoreRow label={names[1]} score={s2} pct={pct2} color="from-violet-400 to-purple-500" />
       </div>
 
       <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4">

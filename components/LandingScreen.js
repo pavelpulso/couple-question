@@ -5,6 +5,10 @@ import { useState } from 'react'
 export default function LandingScreen({ t, onStart }) {
   const defaultCount = t.countOptions.find(o => o.default)?.value ?? 20
   const [count, setCount] = useState(defaultCount)
+  const [names, setNames] = useState(['', ''])
+
+  const n1 = names[0].trim() || t.player1
+  const n2 = names[1].trim() || t.player2
 
   return (
     <div className="float-in space-y-6">
@@ -38,6 +42,23 @@ export default function LandingScreen({ t, onStart }) {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-rose-100 p-5 space-y-3">
+        <h2 className="font-semibold text-gray-800 text-base">{t.nameTitle}</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {[0, 1].map(i => (
+            <input
+              key={i}
+              type="text"
+              maxLength={20}
+              placeholder={i === 0 ? t.namePlaceholder1 : t.namePlaceholder2}
+              value={names[i]}
+              onChange={e => setNames(prev => prev.map((v, j) => j === i ? e.target.value : v))}
+              className="w-full px-4 py-2.5 rounded-xl border-2 border-gray-100 bg-gray-50 text-gray-800 placeholder-gray-400 focus:outline-none focus:border-rose-300 focus:bg-white transition-all text-sm"
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-rose-100 p-5 space-y-3">
         <h2 className="font-semibold text-gray-800 text-base">{t.countLabel}</h2>
         <div className="grid grid-cols-4 gap-2">
           {t.countOptions.map(opt => (
@@ -58,7 +79,7 @@ export default function LandingScreen({ t, onStart }) {
       </div>
 
       <button
-        onClick={() => onStart(count)}
+        onClick={() => onStart({ count, names: [n1, n2] })}
         className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold text-base shadow-md hover:shadow-lg hover:from-rose-600 hover:to-pink-600 active:scale-95 transition-all duration-200"
       >
         {t.startBtn} →

@@ -10,11 +10,13 @@ export default function Home() {
   const [lang, setLang] = useState('ru')
   const [screen, setScreen] = useState('landing')
   const [count, setCount] = useState(20)
+  const [names, setNames] = useState(['', ''])
   const [result, setResult] = useState(null)
   const t = translations[lang]
 
-  function handleStart(selectedCount) {
-    setCount(selectedCount)
+  function handleStart({ count: c, names: n }) {
+    setCount(c)
+    setNames(n)
     setScreen('quiz')
   }
 
@@ -35,10 +37,11 @@ export default function Home() {
         )}
         {screen === 'quiz' && (
           <QuizScreen
-            key={count}
+            key={`${count}-${names.join('-')}`}
             t={t}
             lang={lang}
             count={count}
+            names={names}
             onDone={(r) => { setResult(r); setScreen('result') }}
           />
         )}
@@ -46,6 +49,7 @@ export default function Home() {
           <ResultScreen
             t={t}
             result={result}
+            names={names}
             onRestart={() => setScreen('landing')}
           />
         )}
