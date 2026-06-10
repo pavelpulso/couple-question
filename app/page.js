@@ -8,12 +8,14 @@ import ResultScreen from '@/components/ResultScreen'
 
 export default function Home() {
   const [lang, setLang] = useState('ru')
-  const [screen, setScreen] = useState('landing') // landing | quiz | result
+  const [screen, setScreen] = useState('landing')
+  const [count, setCount] = useState(20)
   const [result, setResult] = useState(null)
   const t = translations[lang]
 
-  function toggleLang() {
-    setLang(l => l === 'ru' ? 'en' : 'ru')
+  function handleStart(selectedCount) {
+    setCount(selectedCount)
+    setScreen('quiz')
   }
 
   return (
@@ -21,7 +23,7 @@ export default function Home() {
       <div className="w-full max-w-lg">
         <div className="flex justify-end mb-4">
           <button
-            onClick={toggleLang}
+            onClick={() => setLang(l => l === 'ru' ? 'en' : 'ru')}
             className="px-3 py-1.5 text-sm font-medium rounded-full bg-white/80 backdrop-blur border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors shadow-sm"
           >
             {t.langSwitch}
@@ -29,12 +31,14 @@ export default function Home() {
         </div>
 
         {screen === 'landing' && (
-          <LandingScreen t={t} onStart={() => setScreen('quiz')} />
+          <LandingScreen t={t} onStart={handleStart} />
         )}
         {screen === 'quiz' && (
           <QuizScreen
+            key={count}
             t={t}
             lang={lang}
+            count={count}
             onDone={(r) => { setResult(r); setScreen('result') }}
           />
         )}
