@@ -7,7 +7,7 @@ import QuizScreen from '@/components/QuizScreen'
 import ResultScreen from '@/components/ResultScreen'
 
 export default function Home() {
-  const [lang, setLang] = useState('ru')
+  const [lang, setLang] = useState('en')
   const [screen, setScreen] = useState('landing')
   const [count, setCount] = useState(20)
   const [names, setNames] = useState(['', ''])
