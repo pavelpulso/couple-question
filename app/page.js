@@ -23,13 +23,20 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center py-8 px-4">
       <div className="w-full max-w-lg">
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={() => setLang(l => l === 'ru' ? 'en' : 'ru')}
-            className="px-3 py-1.5 text-sm font-medium rounded-full bg-white/80 backdrop-blur border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors shadow-sm"
-          >
-            {t.langSwitch}
-          </button>
+        <div className="flex justify-end mb-4 gap-1">
+          {['en', 'es', 'ru'].map(l => (
+            <button
+              key={l}
+              onClick={() => setLang(l)}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-colors shadow-sm uppercase tracking-wide ${
+                lang === l
+                  ? 'bg-rose-500 border-rose-500 text-white'
+                  : 'bg-white/80 backdrop-blur border-rose-200 text-rose-500 hover:bg-rose-50'
+              }`}
+            >
+              {l}
+            </button>
+          ))}
         </div>
 
         {screen === 'landing' && (
