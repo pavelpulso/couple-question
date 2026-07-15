@@ -11,6 +11,11 @@ turn 40 years of research into a 10-minute conversation.
 
 <br/>
 
+<img src="docs/screenshots/gameplay.gif" alt="Love Map — gameplay" width="300"/>
+
+<br/>
+<br/>
+
 <img src="docs/screenshots/landing.png" alt="Love Map — landing screen" width="270"/>&nbsp;
 <img src="docs/screenshots/quiz.png" alt="Love Map — quiz screen" width="270"/>&nbsp;
 <img src="docs/screenshots/result.png" alt="Love Map — result screen" width="270"/>
