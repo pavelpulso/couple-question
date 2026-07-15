@@ -42,7 +42,7 @@ The result is a product that's fun on the surface and quietly doing something us
 
 - **🎯 Faithful to the method** — 62 real Love Map questions, two-round turn-taking, and Gottman-style weighted scoring (the answerer earns the question's points, the asker earns 1 for a correct guess).
 - **🌍 Trilingual** — full EN / ES / RU support, switchable on the fly. No reload.
-- **👤 Personalized** — enter both names; every prompt reads *"Alex asks · Sam answers"*.
+- **👤 Personalized** — enter both names; every prompt reads *"David asks · Emma answers"*.
 - **⏱️ Pick your depth** — 5 (quick), 10 (date night), 20 (full game), or 30 (deep dive) questions.
 - **↩️ Undo-safe** — a back button rewinds the last answer *and* its score.
 - **🎉 Delightful finish** — animated score bars, a winner (or a tie), and a confetti burst.
@@ -52,8 +52,8 @@ The result is a product that's fun on the surface and quietly doing something us
 
 Each question is played **twice** — once in each direction.
 
-1. **Alex → Sam**: Alex reads the question, Sam answers out loud, Alex marks it right or wrong.
-2. If **right** → Sam gets the question's difficulty points (1–5 ♥), Alex gets **+1** for asking a good question.
+1. **David → Emma**: David reads the question, Emma answers out loud, David marks it right or wrong.
+2. If **right** → Emma gets the question's difficulty points (1–5 ♥), David gets **+1** for asking a good question.
 3. If **wrong** → nobody scores, and the app nudges you to *talk it through*.
 4. Then you **switch roles** and repeat.
 
